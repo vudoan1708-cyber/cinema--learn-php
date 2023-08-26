@@ -1,0 +1,65 @@
+version: "3.9"
+services:
+  cinema:
+    image: cinema
+    container_name: cinema
+    hostname: cinema.docker
+    restart: always
+    build:
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    ports:
+      - 80:80
+      - 443:443
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./logs/:/var/log/apache2/
+    links:
+      - mysql
+    depends_on:
+      - mysql
+    env_file: .env
+    environment:
+      UPLOAD_LIMIT: 64M
+
+  mysql:
+    image: mysql:5.7
+    container_name: buddy-mysql
+    platform: linux/amd64
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_DB: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      # Data layer is not recreated when the docker container is respun, the best way is to change the database name
+      # Reference: https://stackoverflow.com/questions/57643617/mariadb-docker-container-refuses-to-initialize-with-database-schema/62170878#62170878
+      - db_data:/var/lib/mysql
+      - ./mysql-init.sql:/docker-entrypoint-initdb.d/mysql-init.sql
+    healthcheck:
+      test: mysqladmin ping --password=root
+      start_period: 5s
+      interval: 1s
+      timeout: 5s
+      retries: 10
+      
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: buddy-pma
+    platform: linux/amd64
+    restart: always
+    links:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      UPLOAD_LIMIT: 256M
+    ports:
+      - 8001:80
+volumes:
+  db_data:
