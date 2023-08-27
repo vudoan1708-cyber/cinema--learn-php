@@ -109,6 +109,30 @@
       }
     }
     /**
+     * Executes the set query and returns the first matched result by ID.
+     * @param string $tableName The table name to select columns from.
+     * @param string $id The id of a row.
+     */
+    public function fetchById(string $tableName, string $id) {
+      try {
+        if (count($this->parameters) > 0) {
+          $this->prepare();
+        }
+        // Fetch newly created data
+        return $this
+          ->removeParameters()
+          ->addParameters([ ':id' => $id ])
+          ->select('*')
+          ->from($tableName)
+          ->where('id')
+          ->fetchOne();
+      } catch (\Exception $e) {
+        ErrorLog($e);
+        $this->resetConnection();
+        throw $e;
+      }
+    }
+    /**
      * Executes the set query and returns the first matched result.
      * @param string $tableName The table name to select columns from.
      */
@@ -119,13 +143,7 @@
         }
         $lastInsertedId = $this->connection->lastInsertId();
         // Fetch newly created data
-        return $this
-          ->removeParameters()
-          ->addParameters([ ':id' => $lastInsertedId ])
-          ->select('*')
-          ->from($tableName)
-          ->where('id')
-          ->fetchOne();
+        return $this->fetchById($tableName, $lastInsertedId);
       } catch (\Exception $e) {
         ErrorLog($e);
         $this->resetConnection();
@@ -232,6 +250,37 @@
       $joinedColumns = implode(', ', $columns);
       $joinedPlaceholders = implode(', ', $placeholders);
       $this->query = "INSERT INTO {$tableName} ({$joinedColumns}) VALUES ({$joinedPlaceholders})";
+      return $this;
+    }
+    /**
+     * UPDATE ... SET mysql statement. This will follow the standardised secure procedure to avoid SQL injection
+     * The parameterised placeholders will be the names of the columns with a colon (:) prefix
+     *
+     * @param string $tableName The table that data will be updated.
+     * @param iterable $columns The updated columns.
+     * @example - as('userId')
+     *
+     * @return self
+     */
+    public function update(string $tableName, iterable $columns) {
+      $placeholders = array_map(function($col) {
+        return "$col=:{$col}";
+      }, $columns);
+
+      $joinedPlaceholders = implode(', ', $placeholders);
+      $this->query = "UPDATE {$tableName} SET {$joinedPlaceholders}";
+      return $this;
+    }
+    /**
+     * DELETE FROM mysql statement.
+     *
+     * @param string $tableName The table that data will be deleted.
+     * @example - as('userId')
+     *
+     * @return self
+     */
+    public function delete(string $tableName) {
+      $this->query = "DELETE FROM {$tableName}";
       return $this;
     }
   }

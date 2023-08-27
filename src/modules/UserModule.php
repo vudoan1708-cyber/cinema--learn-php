@@ -27,7 +27,7 @@
       return $response['body'];
     }
 
-    public function add($firstName, $lastName, $address = null, $job = null) {
+    public function create($firstName, $lastName, $address = null, $job = null) {
       // Add parameters
       $dbFactoryWithParams = self::$dbFactory->addParameters([
         ':firstName' => $firstName,
@@ -41,5 +41,32 @@
       $response['body'] = $result;
       return $response['body'];
     }
+
+    public function update($id, $firstName, $lastName, $address = null, $job = null) {
+      // Add parameters
+      $dbFactoryWithParams = self::$dbFactory->addParameters([
+        ':firstName' => $firstName,
+        ':lastName' => $lastName,
+        ':address' => $address,
+        ':job' => $job,
+        ':id' => $id,
+      ]);
+      $dbFactoryWithParams
+        ->update('Users', [ 'firstName', 'lastName', 'address', 'job' ])
+        ->where('id')
+        ->fetchById('Users', $id);
+      http_response_code(204);
+    }
+
+    public function delete($id) {
+      // Add parameters
+      $dbFactoryWithParams = self::$dbFactory->addParameters([
+        ':id' => $id,
+      ]);
+      $dbFactoryWithParams
+        ->delete('Users')
+        ->where('id')
+        ->fetchById('Users', $id);
+      http_response_code(204);
+    }
   }
-?>
