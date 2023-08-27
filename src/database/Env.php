@@ -1,5 +1,5 @@
 <?php
-  namespace mab\database;
+  namespace cinema\database;
 
   // Reference: https://www.sourcecodester.com/tutorial/php/16035/load-environment-variables-env-file-using-php-tutorial
 

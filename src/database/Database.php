@@ -1,7 +1,7 @@
 <?php
-  namespace mab\database;
+  namespace cinema\database;
 
-  use mab\database\Env;
+  use cinema\database\Env;
 
   class Database {
     private $env;

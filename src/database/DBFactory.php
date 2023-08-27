@@ -1,5 +1,5 @@
 <?php
-  namespace mab\database;
+  namespace cinema\database;
 
   /**
    * This class is a factory - a factory provides an interface with which its corresponding an instance of a class is interacted
