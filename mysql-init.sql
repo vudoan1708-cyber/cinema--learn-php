@@ -2,9 +2,9 @@
 CREATE DATABASE IF NOT EXISTS `cinema-local`;
 
 -- create users and grant rights
+-- CREATE USER 'vu'@'localhost' IDENTIFIED BY 'vu';
 CREATE USER 'vu'@'localhost' IDENTIFIED BY 'vu';
--- CREATE USER 'vu'@'%' IDENTIFIED BY 'vu';
-GRANT ALL PRIVILEGES ON *.* TO 'vu'@'localhost' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'vu'@'%' WITH GRANT OPTION;
 
 FLUSH PRIVILEGES;
 
@@ -29,6 +29,7 @@ CREATE TABLE `Users` (
   `lastName` varchar(256) NOT NULL,
   `fullName` varchar(256) GENERATED ALWAYS AS (concat(`firstName`,' ',`lastName`)) VIRTUAL NOT NULL,
   `address` varchar(256) DEFAULT NULL,
+  `email` varchar(256) DEFAULT NULL,
   `job` varchar(256) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -42,7 +43,8 @@ CREATE TABLE `Movies` (
   `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `name` varchar(256) NOT NULL,
   `actors` json NOT NULL,
-  `yearOfRelease` year(4) DEFAULT NULL
+  `yearOfRelease` year(4) DEFAULT NULL,
+  `thumbnail` varchar(256) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 COMMIT;

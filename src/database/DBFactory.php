@@ -71,10 +71,10 @@
       try {
         $statement = $this->connection->prepare($this->query);
         $statement->execute($this->parameters);
+        return $statement;
       } catch (\PDOException $ex) {
         throw $ex;
       }
-      return $statement;
     }
 
     # Execution
@@ -143,7 +143,9 @@
         }
         $lastInsertedId = $this->connection->lastInsertId();
         // Fetch newly created data
-        return $this->fetchById($tableName, $lastInsertedId);
+        return $this
+          ->removeParameters()
+          ->fetchById($tableName, $lastInsertedId);
       } catch (\Exception $e) {
         ErrorLog($e);
         $this->resetConnection();

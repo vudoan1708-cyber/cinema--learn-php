@@ -11,8 +11,6 @@ $this->map(
   'GET',
   '/user/[i:userId]',
   function ($userId) {
-    $response = [
-    ];
     return (new UserModule(API::$dbFactory))->find($userId);
   },
   'user#get'
@@ -31,19 +29,25 @@ $this->map(
   'POST',
   '/user',
   function () {
-    $data = (new Request())->parseRequest();
+    $data = Request::parseRequest();
 
     if (!isset($data['firstName'])) {
-      $ex = new \Exception('Bad Request', 400);
-      // $ex->detail = 'firstName not found';
+      http_response_code(400);
+      $ex = new \Exception('firstName not set', 400);
       throw $ex;
     }
     if (!isset($data['lastName'])) {
-      $ex = new \Exception('Bad Request', 400);
-      // $ex->detail = 'lastName not found';
+      http_response_code(400);
+      $ex = new \Exception('lastName not set', 400);
       throw $ex;
     }
-    return (new UserModule(API::$dbFactory))->create($data['firstName'], $data['lastName'], $data['address'] ?? null, $data['job'] ?? null);
+    return (new UserModule(API::$dbFactory))->create(
+      $data['firstName'],
+      $data['lastName'],
+      $data['address'] ?? null,
+      $data['email'] ?? null,
+      $data['job'] ?? null
+    );
   },
   'user#post'
 );
@@ -52,19 +56,33 @@ $this->map(
   'PATCH',
   '/user/[i:userId]',
   function ($userId) {
+    $UserModule = new UserModule(API::$dbFactory);
+
+    // Find all users and then search if the queried ID exists in the DB
+    $allUsers = $UserModule->findAll();
+    if (array_search($userId, array_column($allUsers, 'id')) === false) {
+      http_response_code(404);
+      $ex = new \Exception('User ID not found in the database', 404);
+      throw $ex;
+    }
+
     // Get the PATCH payload.
-    $data = (new Request())->parseRequest();
-    if (!isset($data['firstName'])) {
-      $ex = new \Exception('Bad Request', 400);
-      // $ex->detail = 'firstName not found';
+    $data = Request::parseRequest();
+    echo count($data);
+    if (count($data) === 0) {
+      http_response_code(400);
+      $ex = new \Exception('Payload is empty', 400);
       throw $ex;
     }
-    if (!isset($data['lastName'])) {
-      $ex = new \Exception('Bad Request', 400);
-      // $ex->detail = 'lastName not found';
-      throw $ex;
-    }
-    return (new UserModule(API::$dbFactory))->update($userId, $data['firstName'], $data['lastName'], $data['address'] ?? null, $data['job'] ?? null);
+
+    return $UserModule->update(
+      $userId,
+      $data['firstName'],
+      $data['lastName'],
+      $data['address'] ?? null,
+      $data['email'] ?? null,
+      $data['job'] ?? null
+    );
   },
   'user#patch'
 );
@@ -73,19 +91,17 @@ $this->map(
   'DELETE',
   '/user/[i:userId]',
   function ($userId) {
-    // Get the PATCH payload.
-    $data = (new Request())->parseRequest();
-    if (!isset($data['firstName'])) {
-      $ex = new \Exception('Bad Request', 400);
-      // $ex->detail = 'firstName not found';
+    $UserModule = new UserModule(API::$dbFactory);
+
+    // Find all users and then search if the queried ID exists in the DB
+    $allUsers = $UserModule->findAll();
+    if (array_search($userId, array_column($allUsers, 'id')) === false) {
+      http_response_code(404);
+      $ex = new \Exception('User ID not found in the database', 404);
       throw $ex;
     }
-    if (!isset($data['lastName'])) {
-      $ex = new \Exception('Bad Request', 400);
-      // $ex->detail = 'lastName not found';
-      throw $ex;
-    }
-    return (new UserModule(API::$dbFactory))->delete($userId, $data['firstName'], $data['lastName'], $data['address'] ?? null, $data['job'] ?? null);
+
+    return $UserModule->delete($userId);
   },
   'user#delete'
 );
