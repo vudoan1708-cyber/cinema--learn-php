@@ -3,6 +3,7 @@
 use cinema\API;
 // Modules
 use cinema\modules\UserModule;
+use cinema\modules\ActorsMoviesModule;
 // Utilities
 use cinema\utilities\Request;
 
@@ -104,4 +105,14 @@ $this->map(
     return $UserModule->delete($userId);
   },
   'user#delete'
+);
+
+# Movie endpoints
+$this->map(
+  'GET',
+  '/movie/[i:movieId]',
+  function ($movieId) {
+    return (new ActorsMoviesModule(API::$dbFactory))->findMovieByMovieId($movieId);
+  },
+  'movie#get'
 );

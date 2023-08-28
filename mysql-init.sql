@@ -42,9 +42,53 @@ CREATE TABLE `Users` (
 CREATE TABLE `Movies` (
   `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `name` varchar(256) NOT NULL,
-  `actors` json NOT NULL,
+  `description` text,
   `yearOfRelease` year(4) DEFAULT NULL,
-  `thumbnail` varchar(256) DEFAULT NULL
+  `thumbnail` varchar(256) DEFAULT NULL,
+  `price` int NOT NULL,
+  `currency` char(3) NOT NULL DEFAULT 'GBP'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `Actors`
+--
+
+CREATE TABLE `Actors` (
+  `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name` varchar(256) NOT NULL,
+  `description` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `TicketingSystem` many-to-many
+--
+
+CREATE TABLE `BookingSystem` (
+  `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `userId` int NOT NULL,
+  `movieId` int NOT NULL,
+  `dateTime` datetime NOT NULL,
+  FOREIGN KEY (`userId`) REFERENCES `Users` (`id`),
+  FOREIGN KEY (`movieId`) REFERENCES `Movies` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ActorsMovies` many-to-many
+--
+
+CREATE TABLE `ActorsMovies` (
+  `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `actorId` int NOT NULL,
+  `movieId` int NOT NULL,
+  FOREIGN KEY (`actorId`) REFERENCES `Actors` (`id`),
+  FOREIGN KEY (`movieId`) REFERENCES `Movies` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 COMMIT;

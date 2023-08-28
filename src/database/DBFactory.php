@@ -222,6 +222,31 @@
       return $this;
     }
     /**
+     * OR mysql statement.
+     *
+     * @param string $column The affected column.
+     * @example - or('movieId')
+     *
+     * @return self
+     */
+    public function or(string $column) {
+      $this->query .= " OR {$column} = :{$column}";
+      return $this;
+    }
+    /**
+     * IN mysql statement.
+     *
+     * @param array $values The values to match.
+     * @example - in(1, 2, 3)
+     *
+     * @return self
+     */
+    public function in(array $values) {
+      $formatted = implode(', ', $values);
+      $this->query .= " IN ({$formatted})";
+      return $this;
+    }
+    /**
      * WHERE mysql statement. This will follow the standardised secure procedure to avoid SQL injection
      * The parameterised placeholder will be the names of a column with a colon (:) prefix
      *
@@ -232,6 +257,28 @@
      */
     public function where(string $column) {
       $this->query .= " WHERE {$column} = :{$column}";
+      return $this;
+    }
+    /**
+     * WHERE ... IN mysql statement. This will follow the standardised secure procedure to avoid SQL injection
+     * The parameterised placeholder will be the names of a column with a colon (:) prefix
+     *
+     * @param string $column The affected column.
+     * @param array $values The values to match, this could already be placeholders.
+     * @example - whereIn('id', [ 1, 2, 3, 4, 5 ]) or whereIn('id', [ ':id1', ':id2', ':id3', ':id4', ':id5'])
+     *
+     * @return self
+     */
+    public function whereIn(string $column, array $values) {
+      if ($values[0][0] !== ':') {
+        $placeholders = array_map(function($val) {
+          return ":id{$val}"; // [ :id1, :id2, :id3, ... ]
+        }, $values);
+      } else {
+        $placeholders = $values;
+      }
+      $formatted = implode(', ', $placeholders);
+      $this->query .= " WHERE {$column} IN ($formatted)";
       return $this;
     }
     /**
