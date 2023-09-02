@@ -23,19 +23,20 @@ class ActorModule {
 
   /**
    * Find actors by IDs
-   * @param string[] $ids an array if actor IDs
+   * @param string[] $ids an array of actor IDs
    * @example - findManyByIds([ 1, 2, 3, 4, 5 ]);
    */
   public function findManyByIds($ids) {
-    $params = array_map(function($id) {
+    // [ :id1 => '1', :id2 => 'id2', :id3 => 'id3', ... ]
+    $params = array_combine(array_map(function($id) {
       return ":id{$id}"; // [ :id1, :id2, :id3, ... ]
-    }, $ids);
+    }, $ids), $ids);
     $result = self::$dbFactory
       ->addParameters($params)
       ->select('*')
       ->from('Actors')
-      ->whereIn('id', $params)
-      ->fetchOne();;
+      ->whereIn('id', array_keys($params))
+      ->fetchAll();
     $response['body'] = $result;
     return $response['body'];
   }

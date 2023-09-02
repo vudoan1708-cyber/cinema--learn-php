@@ -21,6 +21,25 @@
       return $response['body'];
     }
 
+    /**
+     * Find movies by IDs
+     * @param string[] $ids an array of movie IDs
+     * @example - findManyByIds([ 1, 2, 3, 4, 5 ]);
+     */
+    public function findManyByIds($ids) {
+      $params = array_map(function($id) {
+        return ":id{$id}"; // [ :id1, :id2, :id3, ... ]
+      }, $ids);
+      $result = self::$dbFactory
+        ->addParameters($params)
+        ->select('*')
+        ->from('Movies')
+        ->whereIn('id', $params)
+        ->fetchAll();;
+      $response['body'] = $result;
+      return $response['body'];
+    }
+
     public function findAll() {
       $result = self::$dbFactory->select('*')->from('Movies')->fetchAll();
       $response['body'] = $result;
@@ -49,7 +68,7 @@
       ]);
       $result = $dbFactoryWithParams
         ->insert(
-            'Users',
+            'Movies',
             [
               'name',
               'description',

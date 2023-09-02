@@ -45,7 +45,7 @@ CREATE TABLE `Movies` (
   `description` text,
   `yearOfRelease` year(4) DEFAULT NULL,
   `thumbnail` varchar(256) DEFAULT NULL,
-  `price` int NOT NULL,
+  `price` decimal(4, 2) NOT NULL,
   `currency` char(3) NOT NULL DEFAULT 'GBP'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
