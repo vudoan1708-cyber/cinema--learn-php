@@ -248,7 +248,7 @@
     }
     /**
      * WHERE mysql statement. This will follow the standardised secure procedure to avoid SQL injection
-     * The parameterised placeholder will be the names of a column with a colon (:) prefix
+     * The parameterised placeholder will be the name of columns with a colon (:) prefix
      *
      * @param string $column The affected column.
      * @example - where('id')
@@ -260,8 +260,34 @@
       return $this;
     }
     /**
+     * WHERE ... AND mysql statement. This will follow the standardised secure procedure to avoid SQL injection
+     * The parameterised placeholder will be the name of columns with a colon (:) prefix
+     *
+     * @param array $columnsAndValues The affected columns and the values as placeholders.
+     * @example - whereAnd([ 'id' => 1, 'name' => 'Vu' ]) or whereAnd([ 'id' => ':id1', 'name' => ':nameVu' ])
+     *
+     * @return self
+     */
+    public function whereAnd(array $columnsAndValues) {
+      $keys = array_keys($columnsAndValues); // [ 'id', 'name' ]
+      $values = array_values($columnsAndValues); // [ 1, 'Vu' ] or [ ':id1', ':nameVu' ]
+      // Ensure parameterisation
+      $placeholders = array_map(function ($key, $value) { // [ ':id1', ':nameVu' ]
+        if ($value[0] === ':') return $value;
+        return ":$key$value";
+      }, $keys, $values);
+      // keys and parameters array
+      $formattedArray = array_map(function ($key, $placeholder) {
+        return "$key = $placeholder"; // [ 'id = :id1', 'name = ":nameVu"' ]
+      }, $keys, $placeholders);
+      // joined string
+      $formattedString = implode(' AND ', $formattedArray); // id = :id1 AND name = :nameVu
+      $this->query .= " WHERE {$formattedString}";
+      return $this;
+    }
+    /**
      * WHERE ... IN mysql statement. This will follow the standardised secure procedure to avoid SQL injection
-     * The parameterised placeholder will be the names of a column with a colon (:) prefix
+     * The parameterised placeholder will be the name of columns with a colon (:) prefix
      *
      * @param string $column The affected column.
      * @param array $values The values to match, this could already be placeholders.
@@ -270,13 +296,11 @@
      * @return self
      */
     public function whereIn(string $column, array $values) {
-      if ($values[0][0] !== ':') {
-        $placeholders = array_map(function($val) {
-          return ":id{$val}"; // [ :id1, :id2, :id3, ... ]
-        }, $values);
-      } else {
-        $placeholders = $values;
-      }
+      $placeholders = array_map(function($val) {
+        if ($val[0] === ':') return $val;
+        return ":id{$val}"; // [ :id1, :id2, :id3, ... ]
+      }, $values);
+
       $formatted = implode(', ', $placeholders);
       $this->query .= " WHERE {$column} IN ($formatted)";
       return $this;

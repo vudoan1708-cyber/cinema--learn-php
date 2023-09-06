@@ -6,6 +6,7 @@ use cinema\modules\UserModule;
 use cinema\modules\ActorsMoviesModule;
 // Utilities
 use cinema\utilities\Request;
+use cinema\utilities\Exception;
 
 # User endpoints
 $this->map(
@@ -33,12 +34,10 @@ $this->map(
     $data = Request::parseRequest();
 
     if (!isset($data['firstName'])) {
-      http_response_code(400);
-      throw new \Exception('firstName not set', 400);
+      Exception::handleException(new \Exception('firstName not set', 400));
     }
     if (!isset($data['lastName'])) {
-      http_response_code(400);
-      throw new \Exception('lastName not set', 400);
+      Exception::handleException(new \Exception('lastName not set', 400));
     }
     return (new UserModule(API::$dbFactory))->create(
       $data['firstName'],
@@ -60,16 +59,14 @@ $this->map(
     // Find all users and then search if the queried ID exists in the DB
     $allUsers = $UserModule->findAll();
     if (array_search($userId, array_column($allUsers, 'id')) === false) {
-      http_response_code(404);
-      throw new \Exception('User ID not found in the database', 404);
+      Exception::handleException(new \Exception('User ID not found in the database', 404));
     }
 
     // Get the PATCH payload.
     $data = Request::parseRequest();
 
     if (count($data) === 0) {
-      http_response_code(400);
-      throw new \Exception('Payload is empty', 400);
+      Exception::handleException(new \Exception('Payload is empty', 400));
     }
 
     return $UserModule->update(
@@ -93,8 +90,7 @@ $this->map(
     // Find all users and then search if the queried ID exists in the DB
     $allUsers = $UserModule->findAll();
     if (array_search($userId, array_column($allUsers, 'id')) === false) {
-      http_response_code(404);
-      throw new \Exception('User ID not found in the database', 404);
+      Exception::handleException(new \Exception('User ID not found in the database', 404));
     }
 
     return $UserModule->delete($userId);
@@ -114,11 +110,20 @@ $this->map(
 
 $this->map(
   'GET',
-  '/actorsByMovieId?movieId=[i:movieId]',
+  '/actorsByMovieId/[i:movieId]',
   function ($movieId) {
     return (new ActorsMoviesModule(API::$dbFactory))->findActorsByMovieId($movieId);
   },
   'actors#get#movieId'
+);
+
+$this->map(
+  'GET',
+  '/actors',
+  function () {
+    return (new ActorsMoviesModule(API::$dbFactory))->findActors();
+  },
+  'actors#get'
 );
 
 $this->map(
@@ -128,8 +133,7 @@ $this->map(
     $data = Request::parseRequest();
 
     if (!isset($data['name'])) {
-      http_response_code(400);
-      throw new \Exception('Movie name is required', 400);
+      Exception::handleException(new \Exception('Movie name is required', 400));
     }
     return (new ActorsMoviesModule(API::$dbFactory))->createActor(
       $data['name'],
@@ -159,22 +163,28 @@ $this->map(
 );
 
 $this->map(
+  'GET',
+  '/movies',
+  function () {
+    return (new ActorsMoviesModule(API::$dbFactory))->findMovies();
+  },
+  'movies#get'
+);
+
+$this->map(
   'POST',
   '/movie',
   function () {
     $data = Request::parseRequest();
 
     if (!isset($data['name'])) {
-      http_response_code(400);
-      throw new \Exception('Movie name is required', 400);
+      Exception::handleException(new \Exception('Movie name is required', 400));
     }
     if (!isset($data['actorIds'])) {
-      http_response_code(400);
-      throw new \Exception('actorIds are required', 400);
+      Exception::handleException(new \Exception('actorIds are is required', 400));
     }
     if (!is_array($data['actorIds'])) {
-      http_response_code(400);
-      throw new \Exception('actorIds should be an array of IDs', 400);
+      Exception::handleException(new \Exception('actorIds should be an array of IDs', 400));
     }
     return (new ActorsMoviesModule(API::$dbFactory))->createMovie(
       $data['name'],

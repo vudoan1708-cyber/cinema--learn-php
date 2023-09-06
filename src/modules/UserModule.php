@@ -2,6 +2,8 @@
   namespace cinema\modules;
 
   use cinema\database\DBFactory;
+  // Utilities
+  use cinema\utilities\Exception;
 
   class UserModule {
     private static $dbFactory;
@@ -17,12 +19,18 @@
         ->from('Users')
         ->where('id')
         ->fetchOne();
+      if (json_encode($result, JSON_PRETTY_PRINT) === 'false') {
+        Exception::handleException(new \Exception('Cannot find a user from the provided userId', 404));
+      }
       $response['body'] = $result;
       return $response['body'];
     }
 
     public function findAll() {
       $result = self::$dbFactory->select('*')->from('Users')->fetchAll();
+      if (count($result) === 0) {
+        Exception::handleException(new \Exception('No user is found', 404));
+      }
       $response['body'] = $result;
       return $response['body'];
     }

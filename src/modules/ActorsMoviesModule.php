@@ -6,6 +6,8 @@ use cinema\database\DBFactory;
 // Modules
 use cinema\modules\ActorModule;
 use cinema\modules\MovieModule;
+// Utilities
+use cinema\utilities\Exception;
 
 class ActorsMoviesModule {
   public static $actorModule;
@@ -89,6 +91,10 @@ class ActorsMoviesModule {
   # Cross data search
   public function findActorsByMovieId(string $movieId) {
     $actorsMovies = $this->findManyByMovieId($movieId);
+
+    if (count($actorsMovies) === 0) {
+      Exception::handleException(new \Exception('Cannot find one or more actors from the provided movieId', 400));
+    }
     return self::$actorModule->findManyByIds(array_map(function ($item) {
       return $item['actorId'];
     }, $actorsMovies));
@@ -99,6 +105,10 @@ class ActorsMoviesModule {
     return self::$movieModule->findManyByIds(array_map(function ($item) {
       return $item['movieId'];
     }, $actorsMovies));
+  }
+
+  public function findMovies() {
+    return self::$movieModule->findAll();
   }
 
   public function createMovie(
@@ -114,7 +124,7 @@ class ActorsMoviesModule {
     $existingActors = self::$actorModule->findManyByIds($actorIds);
     // If any one that is not found, throw exception
     if (count($existingActors) !== count($actorIds)) {
-      throw new \Exception('At least one actor is not found from the payload', 400);
+      Exception::handleException(new \Exception('At least one actor is not found from the payload', 400));
     }
 
     $result = self::$movieModule->create(
@@ -133,6 +143,10 @@ class ActorsMoviesModule {
     $result['actorsInMovie'] = $existingActors;
     // Return the created movie and the created actors-movies rows
     return $result;
+  }
+
+  public function findActors() {
+    return self::$actorModule->findAll();
   }
   public function createActor(
     $name,
