@@ -4,6 +4,7 @@ use cinema\API;
 // Modules
 use cinema\modules\UserModule;
 use cinema\modules\ActorsMoviesModule;
+use cinema\modules\MovieTrailerModule;
 // Utilities
 use cinema\utilities\Request;
 use cinema\utilities\Exception;
@@ -197,4 +198,15 @@ $this->map(
     );
   },
   'movie#post'
+);
+
+### External API
+# Youtube API
+$this->map(
+  'GET',
+  '/trailer/search/[:keyword]',
+  function (string $keyword) {
+    return (new MovieTrailerModule(API::$env->get('YOUTUBE_API')))->search($keyword);
+  },
+  'trailer#get'
 );

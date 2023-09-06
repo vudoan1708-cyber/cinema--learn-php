@@ -2,13 +2,16 @@
 namespace cinema;
 
 // Database
+use cinema\database\Env;
 use cinema\database\DBFactory;
 
 class API {
+  public static $env;
   public static $dbFactory;
   public static $router;
 
   public function __construct() {
+    self::$env = new Env();
     self::$dbFactory = new DBFactory();
     self::$router = new Router();
     $this->runAPI();

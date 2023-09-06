@@ -81,6 +81,10 @@ class ActorsMoviesModule {
 
   # Search self via self's id
   public function findActorByActorId(string $actorId) {
+    $result = self::$actorModule->find($actorId);
+    if (json_encode($result, JSON_PRETTY_PRINT) === 'false') {
+      Exception::handleException(new \Exception('Cannot find an actor from the provided ID', 400));
+    }
     return self::$actorModule->find($actorId);
   }
 

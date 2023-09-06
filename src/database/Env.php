@@ -26,7 +26,7 @@
       }
     }
 
-    public function get(string $name): string {
+    public static function get(string $name): string {
       return $_ENV[$name];
     }
   }

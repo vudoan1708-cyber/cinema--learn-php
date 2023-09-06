@@ -8,15 +8,11 @@
     public $connection;
 
     private $query = '';
-    // private $select = [];
     private $parameters = [];
-    // private $insert = FALSE;
-    // private $update = FALSE;
-    // private $delete = FALSE;
 
     public function __construct() {
       try {
-        $dbInstance = new Database(new Env());
+        $dbInstance = new Database();
         // Create a connection to the database
         $this->connection = $dbInstance->connect();
       } catch (\Exception $ex) {
@@ -25,10 +21,6 @@
     }
 
     private function resetConnection() {
-      // $this->select = [];
-      // $this->insert = FALSE;
-      // $this->update = FALSE;
-      // $this->delete = FALSE;
       $this->removeParameters();
       $this->resetQuery();
     }
