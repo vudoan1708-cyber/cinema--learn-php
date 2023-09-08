@@ -303,12 +303,12 @@
      *
      * @param string $tableName The table that new data will be inserted into.
      * @param iterable $columns The inserted columns.
-     * @example - as('userId')
+     * @example - insert('tableName', [ 'id', 'userName' ])
      *
      * @return self
      */
     public function insert(string $tableName, iterable $columns) {
-      $placeholders = array_map(function($col) {
+      $placeholders = array_map(function ($col) {
         return ":{$col}";
       }, $columns);
 

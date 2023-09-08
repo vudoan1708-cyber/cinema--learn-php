@@ -11,14 +11,12 @@
     }
 
     public function find(string $id) {
-      $result = self::$dbFactory
+      return self::$dbFactory
         ->addParameters([ ':id' => $id ])
         ->select('*')
         ->from('Movies')
         ->where('id')
         ->fetchOne();
-      $response['body'] = $result;
-      return $response['body'];
     }
 
     /**
@@ -30,20 +28,16 @@
       $params = array_map(function($id) {
         return ":id{$id}"; // [ :id1, :id2, :id3, ... ]
       }, $ids);
-      $result = self::$dbFactory
+      return self::$dbFactory
         ->addParameters($params)
         ->select('*')
         ->from('Movies')
         ->whereIn('id', $params)
         ->fetchAll();;
-      $response['body'] = $result;
-      return $response['body'];
     }
 
     public function findAll() {
-      $result = self::$dbFactory->select('*')->from('Movies')->fetchAll();
-      $response['body'] = $result;
-      return $response['body'];
+      return self::$dbFactory->select('*')->from('Movies')->fetchAll();
     }
 
     /**
@@ -66,7 +60,7 @@
         ':price' => $price,
         ':currency' => $currency,
       ]);
-      $result = $dbFactoryWithParams
+      return $dbFactoryWithParams
         ->insert(
             'Movies',
             [
@@ -79,7 +73,5 @@
             ]
           )
         ->fetchLastInserted('Movies');
-      $response['body'] = $result;
-      return $response['body'];
     }
   }

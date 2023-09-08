@@ -33,20 +33,16 @@ class ActorModule {
     // [ :id1 => '1', :id2 => 'id2', :id3 => 'id3', ... ]
     $params = array_combine($keys, $ids);
 
-    $result = self::$dbFactory
+    return self::$dbFactory
       ->addParameters($params)
       ->select('*')
       ->from('Actors')
       ->whereIn('id', $keys)
       ->fetchAll();
-    $response['body'] = $result;
-    return $response['body'];
   }
 
   public function findAll() {
-    $result = self::$dbFactory->select('*')->from('Actors')->fetchAll();
-    $response['body'] = $result;
-    return $response['body'];
+    return self::$dbFactory->select('*')->from('Actors')->fetchAll();
   }
 
   /**
@@ -61,7 +57,7 @@ class ActorModule {
       ':name' => $name,
       ':description' => $description,
     ]);
-    $result = $dbFactoryWithParams
+    return $dbFactoryWithParams
       ->insert(
           'Actors',
           [
@@ -70,7 +66,5 @@ class ActorModule {
           ]
         )
       ->fetchLastInserted('Actors');
-    $response['body'] = $result;
-    return $response['body'];
   }
 }

@@ -6,7 +6,7 @@ use cinema\database\DBFactory;
 // Modules
 use cinema\modules\MovieModule;
 
-class BookingSystem {
+class BookingSystemModule {
   public static $movieModule;
   public static $dbFactory;
 
@@ -19,18 +19,37 @@ class BookingSystem {
   }
 
   # Own's methods
-  public function findManyByMovieIdAndUserId($movieId, $userId) {
+  public function findManyByMovieIdAndUserId(string $movieId, string $userId) {
     // Add parameters
     $dbFactoryWithParams = self::$dbFactory->addParameters([
       ':movieId' => $movieId,
       ':userId' => $userId,
     ]);
 
-    $result = $dbFactoryWithParams
+    return $dbFactoryWithParams
       ->select('*')
       ->whereAnd([ 'movieId' => ':movieId', 'userId' => ':userId' ])
       ->fetchAll();
-    $response['body'] = $result;
-    return $response['body'];
+  }
+
+  public function find($id) {
+    return self::$dbFactory
+      ->addParameters([ ':id' => $id ])
+      ->select('*')
+      ->from('BookingSystem')
+      ->where('id')
+      ->fetchOne();
+  }
+
+  public function createBooking(string $movieId, string $userId) {
+    // Add parameters
+    $dbFactoryWithParams = self::$dbFactory->addParameters([
+      ':movieId' => $movieId,
+      ':userId' => $userId,
+    ]);
+
+    return $dbFactoryWithParams
+      ->insert('BookingSystem', [ 'movieId', 'userId' ])
+      ->fetchLastInserted('BookingSystem');
   }
 }

@@ -21,7 +21,7 @@ class Fetch {
     
     curl_close($curl_handle);
 
-    // Decode JSON into PHP array and return it
+    // Decode stringified JSON into PHP array and return it
     return json_decode($response, true);
   }
 }

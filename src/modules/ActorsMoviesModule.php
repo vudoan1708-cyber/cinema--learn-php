@@ -66,7 +66,7 @@ class ActorsMoviesModule {
       ':actorId' => $actorId,
       ':movieId' => $movieId,
     ]);
-    $result = $dbFactoryWithParams
+    return $dbFactoryWithParams
       ->insert(
           'ActorsMovies',
           [
@@ -75,8 +75,6 @@ class ActorsMoviesModule {
           ]
         )
       ->fetchLastInserted('ActorsMovies');
-    $response['body'] = $result;
-    return $response['body'];
   }
 
   # Search self via self's id

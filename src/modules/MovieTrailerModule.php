@@ -40,9 +40,7 @@ class MovieTrailerModule {
       Exception::handleException(new \Exception('No result found', 400));
     }
     // Pick the most matched item - index 0
-    // TODO: This is not working somehow, needs fixing
     $videoId = $result['items'][0]['id']['videoId'];
-    // echo $videoId;
     return $this->listYoutubeVideos($videoId);
   }
 }

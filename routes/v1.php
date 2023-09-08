@@ -4,6 +4,7 @@ use cinema\API;
 // Modules
 use cinema\modules\UserModule;
 use cinema\modules\ActorsMoviesModule;
+use cinema\modules\BookingSystemModule;
 use cinema\modules\MovieTrailerModule;
 // Utilities
 use cinema\utilities\Request;
@@ -198,6 +199,39 @@ $this->map(
     );
   },
   'movie#post'
+);
+
+# Booking System
+$this->map(
+  'GET',
+  '/booking/[i:id]',
+  function ($id) {
+    if (!isset($id)) {
+      Exception::handleException(new \Exception('booking ID is required', 404));
+    }
+    return (new BookingSystemModule(API::$dbFactory))->find($id);
+  },
+  'booking#get'
+);
+
+$this->map(
+  'POST',
+  '/booking',
+  function () {
+    $data = Request::parseRequest();
+
+    if (!isset($data['userId'])) {
+      Exception::handleException(new \Exception('userId is not provided in the payload', 404));
+    }
+    if (!isset($data['movieId'])) {
+      Exception::handleException(new \Exception('movieId is not provided in the payload', 404));
+    }
+    return (new BookingSystemModule(API::$dbFactory))->createBooking(
+      $data['movieId'],
+      $data['userId']
+    );
+  },
+  'booking#post'
 );
 
 ### External API
